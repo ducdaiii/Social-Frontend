@@ -5,5 +5,11 @@ import svgr from 'vite-plugin-svgr';
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    port: 3000, 
+  },
   plugins: [react(), tailwindcss(), svgr()],
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+  },
 });

@@ -1,9 +1,37 @@
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { RouterProvider } from "react-router-dom";
-import './App.css';
+import { Provider } from "react-redux";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { decodeUser } from "./redux/authSlice";
+import "./App.css";
 import router from "./router";
+import { Suspense } from "react";
+import store from "./redux/store";
 
-const App = () => {
-  return <RouterProvider router={router} />;
+const queryClient = new QueryClient();
+
+const AppContent = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log("🚀 Dispatching decodeUser...");
+    dispatch(decodeUser());
+  }, [dispatch]);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Suspense fallback={<div className="loading-spinner">Đang tải...</div>}>
+        <RouterProvider router={router} />
+      </Suspense>
+    </QueryClientProvider>
+  );
 };
 
-export default App
+const App = () => (
+  <Provider store={store}>
+    <AppContent />
+  </Provider>
+);
+
+export default App;
