@@ -6,7 +6,6 @@ import { updatePrice } from "../redux/wsSlice";
 import formatCurrency from "../utilities/formatCurrency";
 import LoadingMotion from "../pages/LoadingMotion";
 
-
 const PAGE_SIZE = 40;
 
 const CryptoList = () => {
@@ -92,21 +91,21 @@ const CryptoList = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-white p-8">
+    <div className={` text-white p-8 rounded-lg}`}>
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
+        <table className="w-full border-collapse">
+          <thead className="text-left">
             <tr className="border-b border-gray-700 cursor-pointer">
               <th className="p-2" onClick={() => changeSort("name")}>Name</th>
-              <th className="p-2" onClick={() => changeSort("realTimePrice")}>Price</th>
-              <th className="p-2" onClick={() => changeSort("quote.USD.percent_change_24h")}>Change (USD)</th>
-              <th className="p-2" onClick={() => changeSort("quote.USD.volume_24h")}>24h Volume</th>
-              <th className="p-2" onClick={() => changeSort("market_cap")}>Market Cap</th>
+              <th className="p-2 text-right" onClick={() => changeSort("realTimePrice")}>Price</th>
+              <th className="p-2 text-right" onClick={() => changeSort("quote.USD.percent_change_24h")}>Change (USD)</th>
+              <th className="p-2 text-right" onClick={() => changeSort("quote.USD.volume_24h")}>24h Volume</th>
+              <th className="p-2 text-right" onClick={() => changeSort("market_cap")}>Market Cap</th>
             </tr>
           </thead>
           <tbody>
             {paginatedAssets.map((asset) => (
-              <tr key={asset.id} className="border-b border-gray-700 hover:bg-gray-800">
+              <tr key={asset.id} className=" hover:bg-gray-800 text-xl">
                 <td className="p-2 flex items-center space-x-2">
                   <img
                     src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${asset.id}.png`}
@@ -116,9 +115,9 @@ const CryptoList = () => {
                   <span className="font-bold">{asset.symbol}</span>
                   <span className="text-gray-400 text-sm">{asset.name}</span>
                 </td>
-                <td className="p-2">${asset.realTimePrice.toFixed(2)}</td>
+                <td className="p-2 text-right">${asset.realTimePrice.toFixed(2)}</td>
                 <td
-                  className={`p-2 font-bold 
+                  className={`p-2 font-bold text-right
                     ${asset.quote.USD.percent_change_24h > 0 ? "text-green-500" : ""}
                     ${asset.quote.USD.percent_change_24h < 0 ? "text-red-500" : ""}
                     ${asset.quote.USD.percent_change_24h === 0 ? "text-yellow-500" : ""}
@@ -126,8 +125,8 @@ const CryptoList = () => {
                 >
                   {asset.quote.USD.percent_change_24h.toFixed(2)}%
                 </td>
-                <td className="p-2">{formatCurrency(asset.quote.USD.volume_24h)}</td>
-                <td className="p-2">${asset.market_cap.toLocaleString()}</td>
+                <td className="p-2 text-right">{formatCurrency(asset.quote.USD.volume_24h)}</td>
+                <td className="p-2 text-right">${asset.market_cap.toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
@@ -135,7 +134,7 @@ const CryptoList = () => {
       </div>
 
       {/* Phân trang */}
-      <div className="flex justify-center items-center mt-4 space-x-2">
+      <div className="flex justify-center items-center mt-4 space-x-10">
         <button
           className="px-3 py-1 bg-gray-700 rounded text-white"
           onClick={() => changePage(currentPage - 1)}

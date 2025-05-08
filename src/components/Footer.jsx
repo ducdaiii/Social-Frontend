@@ -3,10 +3,10 @@ import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-gray-300 outline py-8 text-center">
+    <footer className="text-gray-300 py-8 text-center">
       <div className="mx-auto px-4 max-w-4xl">
         {/* Grid cho các cột, tiêu đề gần nhau hơn */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
           {/* Cột 1: About */}
           <div className="group">
             <h3 className="text-white font-semibold mb-2">About</h3>

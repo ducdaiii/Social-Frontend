@@ -28,7 +28,22 @@ export const userApi = createApi({
         method: "DELETE",
       }),
     }),
+    followUser: builder.mutation({
+      query: (id) => ({
+        url: `users/follow/${id}`,
+        method: "POST",
+      }),
+    }),
+    unfollowUser: builder.mutation({
+      query: (id) => ({
+        url: `users/unfollow/${id}`,
+        method: "POST",
+      }),
+    }),
+    getfollowList: builder.query({
+      query: (id) => (`users/${id}/following`),
+    }),
   }),
 });
 
-export const { useGetUsersQuery, useGetUserByIdQuery, useUpdateUserMutation, useDeleteUserMutation } = userApi;
+export const { useGetUsersQuery, useGetUserByIdQuery, useUpdateUserMutation, useDeleteUserMutation, useFollowUserMutation, useUnfollowUserMutation, useGetfollowListQuery } = userApi;

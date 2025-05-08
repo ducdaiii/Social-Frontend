@@ -12,15 +12,21 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleGoogleLogin = () => {
+    const googleAuthURL = `https://accounts.google.com/o/oauth2/auth?client_id=${import.meta.env.VITE_GOOGLE_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_GOOGLE_REDIRECT_URI}&response_type=code&scope=email profile`;
+    window.location.href = googleAuthURL;
+  };
+    
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await login(formData).unwrap();
-      
+
       // Lưu accessToken và refreshToken vào localStorage
       localStorage.setItem("accessToken", response.accessToken);
       localStorage.setItem("refreshToken", response.refreshToken);
-  
+
       console.log("Welcome:", response);
       navigate("/");
     } catch (err) {
@@ -88,6 +94,20 @@ const Login = () => {
             className="w-full p-3 bg-[#00E0FF] text-gray-900 font-semibold rounded-lg shadow-lg transition-all duration-300 hover:bg-[#00B2CC] hover:shadow-cyan-500/50"
           >
             {isLoading ? "Login..." : "LOGIN"}
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={handleGoogleLogin}
+            className="w-full p-3 flex items-center justify-center gap-2 bg-white text-gray-900 font-semibold rounded-lg shadow-lg transition-all duration-300 hover:bg-gray-200"
+          >
+            <img
+              src="https://logos-world.net/wp-content/uploads/2020/09/Google-Symbol.png"
+              alt="Google"
+              className="w-10 h-5"
+            />
+            Login with Google
           </motion.button>
         </form>
 

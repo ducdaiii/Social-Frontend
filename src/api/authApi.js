@@ -30,14 +30,9 @@ export const authApi = createApi({
       baseQuery: publicBaseQuery, 
     }),
     
-    // Logout mutation (auth required)
-    logout: builder.mutation({
-      query: () => ({
-        url: "auth/logout",
-        method: "POST",
-      }),
-      //baseQuery: publicBaseQuery,
-    }),
+    googleCallback: builder.query({
+      query: (code) => `auth/google/callback?code=${code}`,
+    }),      
     
     // Refresh token mutation (auth required)
     refresh: builder.mutation({
@@ -54,6 +49,6 @@ export const authApi = createApi({
 export const {
   useRegisterMutation,
   useLoginMutation,
-  useLogoutMutation,
+  useGoogleCallbackQuery,
   useRefreshMutation,
 } = authApi;
