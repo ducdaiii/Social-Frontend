@@ -9,6 +9,7 @@ const publicBaseQuery = fetchBaseQuery({
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: baseQueryWithReauth,
+  tagTypes: ["User"],
   endpoints: (builder) => ({
     // Register mutation (no need for auth token)
     register: builder.mutation({
@@ -17,9 +18,9 @@ export const authApi = createApi({
         method: "POST",
         body: data,
       }),
-      baseQuery: publicBaseQuery, 
+      baseQuery: publicBaseQuery,
     }),
-    
+
     // Login mutation (no need for auth token)
     login: builder.mutation({
       query: (data) => ({
@@ -27,14 +28,19 @@ export const authApi = createApi({
         method: "POST",
         body: data,
       }),
-      baseQuery: publicBaseQuery, 
+      baseQuery: publicBaseQuery,
     }),
-    
+
+    // Google and GitHub callback
     googleCallback: builder.query({
       query: (code) => `auth/google/callback?code=${code}`,
-    }),      
-    
-    // Refresh token mutation (auth required)
+    }),
+
+    githubCallback: builder.query({
+      query: (code) => `auth/github/callback?code=${code}`,
+    }),
+
+    // Refresh token
     refresh: builder.mutation({
       query: (data) => ({
         url: "auth/refresh",
@@ -42,13 +48,33 @@ export const authApi = createApi({
         body: data,
       }),
     }),
+
+    // Get current logged-in user
+    getMe: builder.query({
+      query: () => ({
+        url: "auth/me",
+        method: "GET",
+      }),
+      providesTags: ["User"],
+    }),
+
+    logout: builder.mutation({
+      query: () => ({
+        url: "auth/logout",
+        method: "POST",
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
-// Export the generated hooks for each mutation
+// Export the generated hooks for each endpoint
 export const {
   useRegisterMutation,
   useLoginMutation,
   useGoogleCallbackQuery,
+  useGithubCallbackQuery,
   useRefreshMutation,
+  useGetMeQuery,
+  useLogoutMutation,
 } = authApi;

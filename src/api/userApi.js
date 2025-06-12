@@ -2,18 +2,19 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "../hooks";
 
 const publicBaseQuery = fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL,
-  });
+  baseUrl: import.meta.env.VITE_API_URL,
+});
 
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     getUsers: builder.query({
-      query: () => "users",
+      query: () => "users/all",
     }),
     getUserById: builder.query({
       query: (id) => `users/${id}`,
+      baseQuery: publicBaseQuery,
     }),
     updateUser: builder.mutation({
       query: ({ id, data }) => ({
@@ -41,9 +42,17 @@ export const userApi = createApi({
       }),
     }),
     getfollowList: builder.query({
-      query: (id) => (`users/${id}/following`),
+      query: (id) => `users/${id}/following`,
     }),
   }),
 });
 
-export const { useGetUsersQuery, useGetUserByIdQuery, useUpdateUserMutation, useDeleteUserMutation, useFollowUserMutation, useUnfollowUserMutation, useGetfollowListQuery } = userApi;
+export const {
+  useGetUsersQuery,
+  useGetUserByIdQuery,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
+  useFollowUserMutation,
+  useUnfollowUserMutation,
+  useGetfollowListQuery,
+} = userApi;

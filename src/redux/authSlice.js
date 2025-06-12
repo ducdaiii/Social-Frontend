@@ -1,47 +1,58 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { decodeToken } from "react-jwt"; 
-
-// Async thunk để decode token và lấy userInfo
-export const decodeUser = createAsyncThunk("jwt", async () => {
-  const userToken = localStorage.getItem("accessToken");
-  if (userToken) {
-    const decoded = decodeToken(userToken);
-    if (decoded) {
-      localStorage.setItem("userInfo", JSON.stringify(decoded)); 
-    }
-    return decoded || null;
-  }
-  return null;
-});
+import { createSlice } from "@reduxjs/toolkit";
+import { authApi } from "../api/authApi";
 
 const initialState = {
-  accessToken: localStorage.getItem("accessToken") || null,
-  refreshToken: localStorage.getItem("refreshToken") || null,
-  code: localStorage.getItem("userInfo") || null, 
+  userInfo: null,
+  loading: false,
+  error: null,
+  token: null,
+  authReady: false,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setTokens: (state, action) => {
-      state.code = action.payload;
+    setUser: (state, action) => {
+      state.userInfo = action.payload;
+      state.token = action.payload.accessToken || action.payload.token;
+      state.loading = false;
+      state.error = null;
+      state.authReady = true;
     },
     logout: (state) => {
-      state.accessToken = null;
-      state.refreshToken = null;
-      state.code = null;
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("userInfo"); 
+      state.userInfo = null;
+      state.token = null;
+      state.loading = false;
+      state.error = null;
+      state.authReady = true;
+    },
+    tokenRefreshed: (state, action) => {
+      state.token = action.payload.accessToken || action.payload.token;
+    },
+    setAuthReady: (state) => {
+      state.authReady = true;
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(decodeUser.fulfilled, (state, action) => {
-      state.code = action.payload;
-    });
+    builder
+      .addMatcher(authApi.endpoints.getMe.matchPending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addMatcher(authApi.endpoints.getMe.matchFulfilled, (state, action) => {
+        state.loading = false;
+        state.userInfo = action.payload;
+        state.authReady = true;
+      })
+      .addMatcher(authApi.endpoints.getMe.matchRejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        state.userInfo = null;
+        state.authReady = true;
+      });
   },
 });
 
-export const { setTokens, logout } = authSlice.actions;
+export const { setAuthReady, setUser, logout, tokenRefreshed } = authSlice.actions;
 export default authSlice.reducer;

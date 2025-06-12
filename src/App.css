@@ -3,17 +3,114 @@
 
 /* App.css */
 .loading-spinner {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 20px;
-    color: #007bff;
-    animation: spin 1s infinite linear;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: #007bff;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
   }
-  
+}
+
+.sidebar {
+  position: sticky;
+  top: 70px;
+  max-height: calc(100vh - 70px);
+  overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    max-width: 250px;
+    font-size: 0.95rem;
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none; 
+  }
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.3);
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(
+    100,
+    100,
+    100,
+    0.6
+  );
+}
+
+.post-scroll-content {
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 100, 100, 0.3) transparent;
+}
+
+.post-scroll-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.post-scroll-content::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.3);
+  border-radius: 4px;
+}
+
+.post-scroll-content:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.6);
+}
+
+.shadow-top,
+.shadow-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 24px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.shadow-top {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.08), transparent);
+}
+
+.shadow-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.08), transparent);
+}
+
+.clamp-3-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}

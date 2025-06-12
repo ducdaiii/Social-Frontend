@@ -2,46 +2,72 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "../hooks";
 
 const publicBaseQuery = fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL,
-  });
+  baseUrl: import.meta.env.VITE_BACKEND_URL,
+});
 
 export const postApi = createApi({
   reducerPath: "postApi",
   baseQuery: baseQueryWithReauth,
+  tagTypes: ["Post"],
   endpoints: (builder) => ({
-    createPost: builder.mutation({
+    // POST /projects
+    createProject: builder.mutation({
       query: (data) => ({
-        url: "posts",
+        url: "projects",
         method: "POST",
         body: data,
+        formData: true,
       }),
     }),
-    getPosts: builder.query({
-      query: () => "posts/random",
+
+    // GET /projects
+    getProjects: builder.query({
+      query: () => "projects",
     }),
-    getPostById: builder.query({
-      query: (id) => `posts/${id}`,
+
+    // GET /projects/:id
+    getProjectById: builder.query({
+      query: (id) => `projects/${id}`,
     }),
-    updatePost: builder.mutation({
+
+    // GET /projects/author
+    getProjectsByAuthor: builder.query({
+      query: (userId) => `projects/author/${userId}`,
+      baseQuery: publicBaseQuery,
+    }),
+
+    // GET /projects/join
+    getProjectsJoin: builder.query({
+      query: (userId) => `projects/join/${userId}`,
+      baseQuery: publicBaseQuery,
+    }),
+
+    // PUT /projects/:id
+    updateProject: builder.mutation({
       query: ({ id, data }) => ({
-        url: `posts/${id}`,
-        method: "PATCH",
-        body: data,
-      }),
-    }),
-    deletePost: builder.mutation({
-      query: (id) => ({
-        url: `posts/${id}`,
-        method: "DELETE",
-      }),
-    }),
-    likePost: builder.mutation({
-      query: (id) => ({
-        url: `posts/${id}/like`,
+        url: `projects/${id}`,
         method: "PUT",
+        body: data,
+        formData: true,
+      }),
+    }),
+
+    // DELETE /projects/:id
+    deleteProject: builder.mutation({
+      query: (id) => ({
+        url: `projects/${id}`,
+        method: "DELETE",
       }),
     }),
   }),
 });
 
-export const { useCreatePostMutation, useGetPostsQuery, useGetPostByIdQuery, useUpdatePostMutation, useDeletePostMutation, useLikePostMutation } = postApi;
+export const {
+  useCreateProjectMutation,
+  useGetProjectsQuery,
+  useGetProjectByIdQuery,
+  useGetProjectsByAuthorQuery,
+  useGetProjectsJoinQuery,
+  useUpdateProjectMutation,
+  useDeleteProjectMutation,
+} = postApi;

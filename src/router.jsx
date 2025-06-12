@@ -2,13 +2,14 @@ import { createBrowserRouter } from "react-router-dom";
 import Home from "./pages/Home";
 import TestNet from "./pages/TestNet";
 import Login from "./pages/Login";
-import Register from "./pages/SignUp"
+import Register from "./pages/SignUp";
 import Layout from "./pages/Layout";
-import ChatPage from "./pages/ChatPage";
-import CryptoList from "./components/CryptoList";
 import UserListPage from "./pages/UserListPage";
-import GoogleCallback from "./features/auth/GoogleCallback";
-import ErrorPage from "./features/err/ErrorPage";
+import OAuthCallback from "./pages/OAuthCallback";
+import OAuth2Callback from "./pages/OAuth2Callback";
+import PostDetail from "./pages/PostDetail";
+import ErrorPage from "./components/err/ErrorPage";
+import UserDetail from "./pages/UserDetail";
 
 const router = createBrowserRouter([
   {
@@ -24,12 +25,13 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: "/", element: <Home /> },
-      { path: "/maket", element: <CryptoList /> },
       { path: "/page201", element: <TestNet /> },
-      { path: "/mess", element: <ChatPage /> },
       { path: "*", element: <ErrorPage /> },
-      { path: "/userRequest", element: <UserListPage /> },
-      { path: "/auth/google/callback", element: <GoogleCallback /> },
+      { path: "/users", element: <UserListPage /> },
+      { path: "/auth/google/callback", element: <OAuthCallback /> },
+      { path: "/auth/github/callback", element: <OAuth2Callback /> },
+      { path: "/post/:id", element: <PostDetail /> },
+      { path: "/detail/:id", element: <UserDetail /> },
     ],
   },
 ]);

@@ -1,28 +1,31 @@
 import { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useGoogleCallbackQuery } from "../../api/authApi";
+import { useGoogleCallbackQuery } from "../api/authApi";
 
-
-const GoogleCallback = () => {
+const OAuthCallback = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const code = searchParams.get("code");
 
-  // Gọi API GET nếu có code
   const { data, error } = useGoogleCallbackQuery(code, { skip: !code });
 
   useEffect(() => {
     if (data) {
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      navigate("/");
+      navigate("/", { replace: true });
+      window.location.reload();
     } else if (error) {
       console.error("Google login failed:", error);
       navigate("/login");
     }
   }, [data, error, navigate]);
 
-  return <p>Logging in with Google...</p>;
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      <p className="text-3xl font-extrabold text-white drop-shadow-[2px_4px_0px_rgba(0,0,0,0.4)]">
+        Logging in with Google...
+      </p>
+    </div>
+  );
 };
 
-export default GoogleCallback;
+export default OAuthCallback;

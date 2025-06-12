@@ -1,38 +1,48 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./authSlice"
-import cryptoWebSocketReducer from "./wsSlice";
 import { authApi } from "../api/authApi";
 import { userApi } from "../api/userApi";
-import { chatApi } from "../api/chatApi";
 import { postApi } from "../api/postApi";
 import { roleApi } from "../api/roleApi";
-import { cryptoApi } from "../api/cryptoApi";
-import { walletApi } from "../api/walletApi";
 import { commentApi } from "../api/commentApi";
+import { projectProgressUpdateApi } from "../api/projectProgressApi";
+import { projectJoinRequestApi } from "../api/projectJoinRequestApi";
+import { projectForumApi } from "../api/projectForumApi";
+import { projectForumMessageApi } from "../api/projectForumMessageApi";
+import { projectContributionApi } from "../api/projectContributionsApi";
+import { partApi } from "../api/partApi";
+import { mailApi } from "../api/mailApi";
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
-    cryptoWebSocket: cryptoWebSocketReducer,
     [authApi.reducerPath]: authApi.reducer,
+    [mailApi.reducerPath]: mailApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
-    [chatApi.reducerPath]: chatApi.reducer,
     [postApi.reducerPath]: postApi.reducer,
+    [partApi.reducerPath]: partApi.reducer,
     [commentApi.reducerPath]: commentApi.reducer,
     [roleApi.reducerPath]: roleApi.reducer,
-    [cryptoApi.reducerPath]: cryptoApi.reducer,
-    [walletApi.reducerPath]: walletApi.reducer,
+    [projectProgressUpdateApi.reducerPath]: projectProgressUpdateApi.reducer,
+    [projectJoinRequestApi.reducerPath]: projectJoinRequestApi.reducer,
+    [projectForumApi.reducerPath]: projectForumApi.reducer,
+    [projectForumMessageApi.reducerPath]: projectForumMessageApi.reducer,
+    [projectContributionApi.reducerPath]: projectContributionApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       authApi.middleware,
+      mailApi.middleware,
       userApi.middleware,
-      chatApi.middleware,
       postApi.middleware,
       commentApi.middleware,
       roleApi.middleware,
-      cryptoApi.middleware,
-      walletApi.middleware
+      partApi.middleware,
+      projectProgressUpdateApi.middleware,
+      projectJoinRequestApi.middleware,
+      projectForumApi.middleware,
+      projectForumMessageApi.middleware,
+      projectContributionApi.middleware,
     ),
 });
 

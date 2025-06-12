@@ -1,36 +1,52 @@
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { RouterProvider } from "react-router-dom";
-import { Provider } from "react-redux";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { decodeUser } from "./redux/authSlice";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import "./App.css";
 import router from "./router";
-import { Suspense } from "react";
 import store from "./redux/store";
+import { useGetMeQuery } from "./api/authApi";
+import { setUser, logout, setAuthReady } from "./redux/authSlice";
+import { useEffect } from "react";
+import LoadingMotion from "./components/err/LoadingMotion";
 
-const queryClient = new QueryClient();
-
-const AppContent = () => {
+const RootWrapper = () => {
   const dispatch = useDispatch();
+  const { token ,authReady, userInfo } = useSelector((state) => state.auth);
+
+  const shouldFetchUser = !authReady || !userInfo || !token;
+
+  const {
+    data,
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+  } = useGetMeQuery(undefined, {
+    skip: !shouldFetchUser,
+  });
 
   useEffect(() => {
-    console.log("🚀 Dispatching decodeUser...");
-    dispatch(decodeUser());
-  }, [dispatch]);
+    if (isSuccess && data) {
+      dispatch(setUser(data)); 
+      dispatch(setAuthReady());
+    }
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Suspense fallback={<div className="loading-spinner">Đang tải...</div>}>
-        <RouterProvider router={router} />
-      </Suspense>
-    </QueryClientProvider>
-  );
+    if (isError && error) {
+      dispatch(logout()); 
+      dispatch(setAuthReady());
+    }
+  }, [isSuccess, isError, data, error, dispatch]);
+
+  if (!authReady || (shouldFetchUser && isLoading)) {
+    return <LoadingMotion />;
+  }
+
+  return <RouterProvider router={router} />;
 };
+
 
 const App = () => (
   <Provider store={store}>
-    <AppContent />
+    <RootWrapper />
   </Provider>
 );
 

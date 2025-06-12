@@ -5,30 +5,51 @@ import { useLoginMutation } from "../api/authApi";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [login, { isLoading, error }] = useLoginMutation();
+  const [login, { isLoading, error }, refresh] = useLoginMutation();
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const isEmailValid = /\S+@\S+\.\S+/.test(formData.email);
+  const isFormValid = isEmailValid && formData.password.length > 0;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const generateRandomState = (length = 16) => {
+    const array = new Uint8Array(length);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, (b) => b.toString(16).padStart(2, "0")).join("");
+  };
+
   const handleGoogleLogin = () => {
-    const googleAuthURL = `https://accounts.google.com/o/oauth2/auth?client_id=${import.meta.env.VITE_GOOGLE_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_GOOGLE_REDIRECT_URI}&response_type=code&scope=email profile`;
+    const googleAuthURL = `https://accounts.google.com/o/oauth2/auth?client_id=${
+      import.meta.env.VITE_GOOGLE_CLIENT_ID
+    }&redirect_uri=${
+      import.meta.env.VITE_GOOGLE_REDIRECT_URI
+    }&response_type=code&scope=email profile`;
     window.location.href = googleAuthURL;
   };
-    
+
+  const handleGithubLogin = () => {
+    const state = generateRandomState();
+    localStorage.setItem("github_oauth_state", state);
+    const githubAuthURL = `https://github.com/login/oauth/authorize?client_id=${
+      import.meta.env.VITE_GITHUB_CLIENT_ID
+    }&redirect_uri=${
+      import.meta.env.VITE_GITHUB_REDIRECT_URI
+    }&scope=read:user%20user:email&state=${state}`;
+
+    window.location.href = githubAuthURL;
+    // console.log("OAuth URL:", import.meta.env.VITE_GITHUB_CLIENT_ID);
+    // console.log("OAuth URL:", import.meta.env.VITE_GITHUB_REDIRECT_URI);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await login(formData).unwrap();
-
-      // Lưu accessToken và refreshToken vào localStorage
-      localStorage.setItem("accessToken", response.accessToken);
-      localStorage.setItem("refreshToken", response.refreshToken);
-
-      console.log("Welcome:", response);
+      await login(formData).unwrap();
+      setFormData({ email: "", password: "" });
       navigate("/");
+      window.location.reload();
     } catch (err) {
       console.error("Login Failed:", err?.data?.message);
     }
@@ -69,31 +90,18 @@ const Login = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full p-3 bg-transparent border border-[#00E0FF] rounded-lg text-white focus:ring-2 focus:ring-[#00E0FF] outline-none"
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full p-3 bg-transparent border border-[#00E0FF] rounded-lg text-white focus:ring-2 focus:ring-[#00E0FF] outline-none"
-          />
           <motion.button
-            type="submit"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className="w-full p-3 bg-[#00E0FF] text-gray-900 font-semibold rounded-lg shadow-lg transition-all duration-300 hover:bg-[#00B2CC] hover:shadow-cyan-500/50"
+            onClick={handleGithubLogin}
+            className="w-full p-3 flex items-center justify-center gap-2 bg-white text-black font-semibold rounded-lg shadow-lg transition-all duration-300"
           >
-            {isLoading ? "Login..." : "LOGIN"}
+            <img
+              src="https://logos-world.net/wp-content/uploads/2020/11/GitHub-Logo-700x394.png"
+              alt="GitHub"
+              className="w-10 h-5"
+            />
+            Login with GitHub
           </motion.button>
 
           <motion.button
@@ -108,6 +116,39 @@ const Login = () => {
               className="w-10 h-5"
             />
             Login with Google
+          </motion.button>
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            required
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full mt-5 p-3 bg-transparent border border-[#00E0FF] rounded-lg text-white focus:ring-2 focus:ring-[#00E0FF] outline-none"
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            autoComplete="current-password"
+            required
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full p-3 bg-transparent border border-[#00E0FF] rounded-lg text-white focus:ring-2 focus:ring-[#00E0FF] outline-none"
+          />
+          <motion.button
+            type="submit"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            disabled={!isFormValid}
+            className={`w-full p-3 font-semibold rounded-lg shadow-lg transition-all duration-300 ${
+              isFormValid
+                ? "bg-[#00E0FF] text-gray-900 hover:bg-[#00B2CC] hover:shadow-cyan-500/50"
+                : "bg-gray-500 text-white cursor-not-allowed"
+            }`}
+          >
+            {isLoading ? "Login..." : "LOGIN"}
           </motion.button>
         </form>
 

@@ -71,6 +71,7 @@ const Register = () => {
             type="password"
             name="password"
             placeholder="Password"
+            autoComplete="new-password"
             required
             value={formData.password}
             onChange={handleChange}
