@@ -48,7 +48,7 @@ const Header = () => {
     { path: "/", icon: "fi fi-sr-home", label: "Home" },
     { path: "/users", icon: "fi fi-sr-users", label: "People" },
     { path: "/news", icon: "fi fi-sr-chart-simple", label: "News" },
-    { path: "/mess", icon: "fi fi-sr-comment", label: "Chatting" },
+    { path: `/forum`, icon: "fi fi-sr-comment", label: "Chatting" },
   ];
 
   return (

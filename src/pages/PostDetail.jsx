@@ -4,11 +4,12 @@ import {
   FaPlusCircle,
   FaArrowLeft,
   FaFileAlt,
-  FaTag,
-  FaClock,
   FaMapMarkerAlt,
+  FaTag,
   FaNetworkWired,
+  FaClock,
 } from "react-icons/fa";
+import { BiChat, BiDetail } from "react-icons/bi";
 import classNames from "classnames";
 import { useCreatePartMutation, useUpdatePartMutation } from "../api/partApi";
 import { useSelector } from "react-redux";
@@ -22,11 +23,12 @@ import {
   useApproveJoinRequestMutation,
   useRejectJoinRequestMutation,
 } from "../api/projectJoinRequestApi";
+import CommentSection from "./CommentSection";
+import ForumPage from "./ForumPage";
 
 const PostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const {
     data: post,
     isLoading,
@@ -41,10 +43,13 @@ const PostDetail = () => {
   const [acceptRequest] = useApproveJoinRequestMutation();
   const [deleteRequest] = useRejectJoinRequestMutation();
 
-  const openCreateModal = () => setEditingPart(null);
-  const openEditModal = (part) => setEditingPart(part);
-
   const currentUser = useSelector((state) => state.auth.userInfo);
+  const [activeTab, setActiveTab] = useState("detail");
+
+  const isAuthorize =
+    currentUser &&
+    (currentUser._id === post?.author ||
+      post?.members?.includes(currentUser._id));
 
   if (isLoading) {
     return (
@@ -65,7 +70,6 @@ const PostDetail = () => {
       await acceptRequest(requestID);
       refetch();
     } catch (err) {
-      console.error("Failed to accept", err);
       alert("Failed to accept");
     }
   };
@@ -75,7 +79,6 @@ const PostDetail = () => {
       await deleteRequest(requestID);
       refetch();
     } catch (err) {
-      console.error("Failed to decline", err);
       alert("Failed to decline");
     }
   };
@@ -90,15 +93,9 @@ const PostDetail = () => {
       setShowPartModal(false);
       refetch();
     } catch (err) {
-      console.error("Failed to create or update part:", err);
       alert("Failed to create or update");
     }
   };
-
-  const isAuthorize =
-    currentUser &&
-    (currentUser._id === post.author ||
-      post.members?.includes(currentUser._id));
 
   const renderMedia = () => {
     if (post.videos?.length > 0) {
@@ -191,150 +188,211 @@ const PostDetail = () => {
           )}
         </aside>
 
-        <main className="md:w-3/4 w-full bg-stone-200 rounded-xl shadow-lg p-6 space-y-6">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
-            {post.title || "No title"}
-          </h1>
-
-          {renderMedia()}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="flex flex-col gap-6">
-              {post.status && (
-                <div>
-                  <h4 className="text-sm font-bold text-black mb-2">Status</h4>
-                  <span
-                    className={classNames(
-                      "inline-flex items-center gap-2 px-4 py-1.5 rounded-full font-semibold text-sm capitalize shadow-sm select-none",
-                      {
-                        "bg-yellow-100 text-yellow-800": post.status === "Idea",
-                        "bg-blue-100 text-blue-800":
-                          post.status === "In Progress",
-                        "bg-green-100 text-green-800":
-                          post.status === "Completed",
-                        "bg-red-100 text-red-800": post.status === "Cancelled",
-                        "bg-gray-300 text-gray-800": post.status === "Archived",
-                      }
-                    )}
-                  >
-                    <FaClock className="w-4 h-4" /> {post.status}
-                  </span>
-                </div>
+        <main className="md:w-3/4 w-full rounded-xl sticky top-20 shadow-lg bg-white">
+          {/* Tabs */}
+          <div className="flex bg-stone-300 px-2 pt-2 rounded-t-xl space-x-2">
+            <button
+              onClick={() => setActiveTab("detail")}
+              className={classNames(
+                "px-4 py-2 rounded-t-lg font-medium w-50 flex items-center space-x-3 transition",
+                activeTab === "detail"
+                  ? "bg-white text-black shadow-inner border-r-4 border-gray-200"
+                  : "text-gray-600 hover:text-blue-600"
               )}
+            >
+              <BiDetail className="w-6 h-6" />
+              <span>Project Detail</span>
+            </button>
 
-              {post.workingMode && (
-                <div>
-                  <h4 className="text-sm font-bold text-black mb-2">
-                    Working Mode
-                  </h4>
-                  <span
-                    className={classNames(
-                      "inline-flex items-center gap-2 px-4 py-1.5 rounded-full font-semibold text-sm capitalize shadow-sm select-none",
-                      {
-                        "bg-green-100 text-green-800":
-                          post.workingMode === "Remote",
-                        "bg-orange-100 text-orange-800":
-                          post.workingMode === "Onsite",
-                        "bg-purple-100 text-purple-800":
-                          post.workingMode === "Hybrid",
-                      }
-                    )}
-                  >
-                    <FaNetworkWired className="w-4 h-4" /> {post.workingMode}
-                  </span>
-                </div>
-              )}
-
-              {post.roles?.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-bold text-black mb-2">Roles</h4>
-                  <div className="flex flex-wrap gap-3">
-                    {post.roles.map((role, i) => (
-                      <span
-                        key={i}
-                        className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1 rounded-full select-none shadow-sm"
-                        title="Role"
-                      >
-                        <FaTag className="w-3.5 h-3.5" />
-                        {role}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-6">
-              {post.location?.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-bold text-black mb-2">
-                    Location
-                  </h4>
-                  <div className="flex flex-wrap gap-3">
-                    {post.location.map((loc, i) => (
-                      <span
-                        key={i}
-                        className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1 rounded-full select-none shadow-sm"
-                        title="Location"
-                      >
-                        <FaMapMarkerAlt className="w-3.5 h-3.5" />
-                        {loc}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {post.tags?.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-bold text-black mb-2">Tags</h4>
-                  <div className="flex flex-wrap gap-3">
-                    {post.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="bg-blue-200 text-blue-900 px-4 py-1.5 rounded-full text-sm font-semibold select-none cursor-default shadow-md hover:bg-blue-300 transition"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            {isAuthorize && (
+              <button
+                onClick={() => setActiveTab("forum")}
+                className={classNames(
+                  "px-4 py-2 rounded-t-lg font-medium w-50 flex items-center space-x-3 transition",
+                  activeTab === "forum"
+                    ? "bg-white text-black shadow-inner border-r-4 border-gray-200"
+                    : "text-gray-600 hover:text-blue-600"
+                )}
+              >
+                <BiChat className="w-6 h-6" />
+                <span>Project Forum</span>
+              </button>
+            )}
           </div>
 
-          <section className="text-gray-800 text-base leading-relaxed whitespace-pre-line">
-            {post.description || "No description"}
-          </section>
+          {/* Tab Content */}
+          <div className="bg-white rounded-b-xl px-6 py-6 shadow-inner">
+            {activeTab === "detail" ? (
+              <>
+                <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
+                  {post.title || "No title"}
+                </h1>
 
-          <PartList
-            partIds={post.parts}
-            isAuthorize={isAuthorize}
-            handleEdit={(part) => {
-              setEditingPart(part);
-              setShowPartModal(true);
-            }}
-          />
+                {renderMedia()}
 
-          {isAuthorize && (
-            <button
-              onClick={() => {
-                setEditingPart(null);
-                setShowPartModal(true);
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            >
-              <FaPlusCircle /> Add Part
-            </button>
-          )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <div className="flex flex-col gap-6">
+                    {/* Status */}
+                    {post.status && (
+                      <div>
+                        <h4 className="text-sm font-bold text-black mb-2">
+                          Status
+                        </h4>
+                        <span
+                          className={classNames(
+                            "inline-flex items-center gap-2 px-4 py-1.5 rounded-full font-semibold text-sm capitalize shadow-sm select-none",
+                            {
+                              "bg-yellow-100 text-yellow-800":
+                                post.status === "Idea",
+                              "bg-blue-100 text-blue-800":
+                                post.status === "In Progress",
+                              "bg-green-100 text-green-800":
+                                post.status === "Completed",
+                              "bg-red-100 text-red-800":
+                                post.status === "Cancelled",
+                              "bg-gray-300 text-gray-800":
+                                post.status === "Archived",
+                            }
+                          )}
+                        >
+                          <FaClock className="w-4 h-4" /> {post.status}
+                        </span>
+                      </div>
+                    )}
 
-          <PartModal
-            isOpen={showPartModal}
-            onClose={() => setShowPartModal(false)}
-            onSubmit={(formData, partId) => handleSubmit(formData, partId)}
-            defaultData={editingPart}
-            projectId={post._id}
-          />
+                    {/* Working Mode */}
+                    {post.workingMode && (
+                      <div>
+                        <h4 className="text-sm font-bold text-black mb-2">
+                          Working Mode
+                        </h4>
+                        <span
+                          className={classNames(
+                            "inline-flex items-center gap-2 px-4 py-1.5 rounded-full font-semibold text-sm capitalize shadow-sm select-none",
+                            {
+                              "bg-green-100 text-green-800":
+                                post.workingMode === "Remote",
+                              "bg-orange-100 text-orange-800":
+                                post.workingMode === "Onsite",
+                              "bg-purple-100 text-purple-800":
+                                post.workingMode === "Hybrid",
+                            }
+                          )}
+                        >
+                          <FaNetworkWired className="w-4 h-4" />{" "}
+                          {post.workingMode}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Roles */}
+                    {post.roles?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-bold text-black mb-2">
+                          Roles
+                        </h4>
+                        <div className="flex flex-wrap gap-3">
+                          {post.roles.map((role, i) => (
+                            <span
+                              key={i}
+                              className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1 rounded-full select-none shadow-sm"
+                            >
+                              <FaTag className="w-3.5 h-3.5" />
+                              {role}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-6">
+                    {/* Location */}
+                    {post.location?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-bold text-black mb-2">
+                          Location
+                        </h4>
+                        <div className="flex flex-wrap gap-3">
+                          {post.location.map((loc, i) => (
+                            <span
+                              key={i}
+                              className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1 rounded-full select-none shadow-sm"
+                            >
+                              <FaMapMarkerAlt className="w-3.5 h-3.5" />
+                              {loc}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tags */}
+                    {post.tags?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-bold text-black mb-2">
+                          Tags
+                        </h4>
+                        <div className="flex flex-wrap gap-3">
+                          {post.tags.map((tag, i) => (
+                            <span
+                              key={i}
+                              className="bg-blue-200 text-blue-900 px-4 py-1.5 rounded-full text-sm font-semibold select-none cursor-default shadow-md hover:bg-blue-300 transition"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <section className="text-gray-800 text-base leading-relaxed whitespace-pre-line">
+                  {post.description || "No description"}
+                </section>
+
+                <PartList
+                  partIds={post.parts}
+                  isAuthorize={isAuthorize}
+                  handleEdit={(part) => {
+                    setEditingPart(part);
+                    setShowPartModal(true);
+                  }}
+                />
+
+                {isAuthorize && (
+                  <button
+                    onClick={() => {
+                      setEditingPart(null);
+                      setShowPartModal(true);
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                  >
+                    <FaPlusCircle /> Add Part
+                  </button>
+                )}
+
+                <PartModal
+                  isOpen={showPartModal}
+                  onClose={() => setShowPartModal(false)}
+                  onSubmit={(formData, partId) =>
+                    handleSubmit(formData, partId)
+                  }
+                  defaultData={editingPart}
+                  projectId={post._id}
+                />
+
+                <CommentSection postId={post._id} currentUser={currentUser} />
+              </>
+            ) : isAuthorize ? (
+              <ForumPage postId={post._id} userId={currentUser._id} />
+            ) : (
+              <p className="text-red-500 font-semibold">
+                You are not authorized to view the forum.
+              </p>
+            )}
+          </div>
         </main>
       </div>
     </div>

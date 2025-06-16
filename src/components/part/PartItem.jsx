@@ -95,7 +95,7 @@ const PartItem = ({ id, isAuthorize, handleEdit }) => {
                 rel="noopener noreferrer"
                 className="hover:text-blue-800"
               >
-                {file.split("/").pop()}
+                {decodeURIComponent(file.split("/").pop())}
               </a>
             </li>
           ))}

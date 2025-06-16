@@ -18,19 +18,19 @@ import { GiPreviousButton, GiNextButton } from "react-icons/gi";
 import RequestModal from "../components/post/detail/RequestModal";
 import { useCreateJoinRequestMutation } from "../api/projectJoinRequestApi";
 import { useSendNotificationWithPdfMutation } from "../api/mailApi";
+import { useGetUserByIdQuery } from "../api/userApi";
 
 const Home = () => {
   const navigate = useNavigate();
-
   const user = useSelector((state) => state.auth.userInfo);
   const userError = useSelector((state) => state.auth.error);
-
   const {
     data: posts = [],
     isLoading,
     isError,
     refetch,
   } = useGetProjectsQuery();
+
   const [createPost] = useCreateProjectMutation();
   const [updatePost] = useUpdateProjectMutation();
   const [deletePost] = useDeleteProjectMutation();
@@ -46,6 +46,8 @@ const Home = () => {
   const [postsPerPage, setPostsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const userIdToFetch = selectedPost?.author || user?._id;
+
   const [filters, setFilters] = useState({
     sort: "",
     location: [],
@@ -54,6 +56,10 @@ const Home = () => {
     tags: [],
     roles: [],
     contributions: [],
+  });
+
+  const { data: author } = useGetUserByIdQuery(userIdToFetch, {
+    skip: !userIdToFetch,
   });
 
   const [showLoginPopup, setShowLoginPopup] = useState(false);
@@ -138,16 +144,17 @@ const Home = () => {
     currentPage * postsPerPage
   );
 
+
   const handleRequest = async ({ letter, file, role }) => {
     try {
-      // await createRequest({
-      //   user: user._id,
-      //   project: selectedPost._id,
-      //   role: role
-      // });
+      await createRequest({
+        user: user._id,
+        project: selectedPost._id,
+        role: role,
+      });
 
       await createMail({
-        to: 'ddoan951@gmail.com',
+        to: author.email,
         file: file,
         note: letter,
       });

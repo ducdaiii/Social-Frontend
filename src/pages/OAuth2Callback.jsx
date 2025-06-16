@@ -9,8 +9,6 @@ export default function OAuth2Callback() {
 
   const { data, error } = useGithubCallbackQuery(code);
 
-  console.log(data, error);
-
   useEffect(() => {
     if (data) {
       navigate("/", { replace: true });

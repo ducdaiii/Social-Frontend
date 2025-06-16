@@ -1,10 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { baseQueryWithReauth } from '../hooks';
 
 export const projectForumMessageApi = createApi({
   reducerPath: 'projectForumMessageApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL,
-  }),
+  baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     // POST /project-forum-messages
     createForumMessage: builder.mutation({
@@ -13,11 +12,6 @@ export const projectForumMessageApi = createApi({
         method: 'POST',
         body: data,
       }),
-    }),
-
-    // GET /project-forum-messages
-    getForumMessages: builder.query({
-      query: () => 'project-forum-messages',
     }),
 
     // GET /project-forum-messages/:id
@@ -46,7 +40,6 @@ export const projectForumMessageApi = createApi({
 
 export const {
   useCreateForumMessageMutation,
-  useGetForumMessagesQuery,
   useGetForumMessageByIdQuery,
   useUpdateForumMessageMutation,
   useDeleteForumMessageMutation,

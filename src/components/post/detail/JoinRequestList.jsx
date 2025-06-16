@@ -17,7 +17,7 @@ const JoinRequestList = ({ requests = [], onAccept, onDecline }) => {
   if (!requestIds.length) return null;
 
   return (
-    <section className="mb-8 p-4 bg-stone-200 rounded-lg">
+    <section className="mb-8 p-4 bg-stone-300 rounded-lg">
       <h2 className="text-lg font-semibold mb-4">Join Requests</h2>
       <ul className="space-y-4">
         {requestIds.map((id) => (

@@ -8,6 +8,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaArchive,
+  FaFileAlt,
 } from "react-icons/fa";
 import { BsLaptop, BsBuilding, BsPeople } from "react-icons/bs";
 import dayjs from "dayjs";
@@ -64,16 +65,41 @@ const PostDetailView = ({ post, onClose, openRequestModal }) => {
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const canRequest =
-    post.status !== "Cancelled" &&
-    post.status !== "Completed" &&
-    post.roles.length > 0 &&
-    user &&
-    user._id !== post.author &&
-    !post.members.includes(user._id) && 
-    !user.projectSend?.includes(post.projectSend);
+  const cantRequest =
+    !user ||
+    user._id === post.author ||
+    post.status === "Completed" ||
+    post.status === "Cancelled" ||
+    post.roles.length === 0 ||
+    post.members.includes(user._id) ||
+    user.projectSend?.some((reqId) => post.joinRequests.includes(reqId));
 
   const renderMedia = () => {
+    if (post.files?.length > 0) {
+      return (
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-700">
+            <FaFileAlt /> Attachments
+          </h2>
+          <ul className="list-disc list-inside text-blue-600 underline space-y-1">
+            {post.files.map((file, i) => (
+              <li key={i}>
+                <a
+                  href={file.replace("/upload/", "/upload/attachment=true/")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                  className="hover:text-blue-800"
+                >
+                  {decodeURIComponent(file.split("/").pop())}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+
     if (post.videos?.length > 0) {
       return (
         <div className="mb-8 space-y-6">
@@ -111,30 +137,6 @@ const PostDetailView = ({ post, onClose, openRequestModal }) => {
               ))}
             </div>
           )}
-        </div>
-      );
-    }
-
-    if (post.files?.length > 0) {
-      return (
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2 text-gray-700">
-            <FaFileAlt /> Attachments
-          </h2>
-          <ul className="list-disc list-inside text-blue-600 underline space-y-1">
-            {post.files.map((file, i) => (
-              <li key={i}>
-                <a
-                  href={file}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-blue-800"
-                >
-                  {file.split("/").pop()}
-                </a>
-              </li>
-            ))}
-          </ul>
         </div>
       );
     }
@@ -239,7 +241,7 @@ const PostDetailView = ({ post, onClose, openRequestModal }) => {
       </div>
 
       <div className="flex justify-end gap-3 mt-2">
-        {canRequest && (
+        {cantRequest || (
           <button
             onClick={openRequestModal}
             className="flex items-center gap-2 bg-blue-600 hover:bg-white hover:text-blue-700 text-white px-4 py-2 rounded-md shadow-sm transition"

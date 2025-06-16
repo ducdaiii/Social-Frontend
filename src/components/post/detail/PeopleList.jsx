@@ -24,7 +24,7 @@ const UserCard = ({ userId }) => {
 
 const MembersList = ({ author, members }) => {
   return (
-    <div className="bg-stone-200 p-4 rounded-xl shadow-md w-full">
+    <div className="bg-stone-300 p-4 rounded-xl shadow-md w-full">
       <h2 className="text-lg font-bold mb-4 text-gray-800">Teams</h2>
 
       {/* Author */}
