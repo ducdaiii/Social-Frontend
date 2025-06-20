@@ -348,7 +348,7 @@ const PostDetail = () => {
                   </div>
                 </div>
 
-                <section className="text-gray-800 text-base leading-relaxed whitespace-pre-line">
+                <section className="text-gray-800 text-base leading-relaxed whitespace-pre-line pb-4">
                   {post.description || "No description"}
                 </section>
 
