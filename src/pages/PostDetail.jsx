@@ -353,7 +353,7 @@ const PostDetail = () => {
                 </section>
 
                 <PartList
-                  partIds={post.parts}
+                  partIds={post?.parts}
                   isAuthorize={isAuthorize}
                   handleEdit={(part) => {
                     setEditingPart(part);
