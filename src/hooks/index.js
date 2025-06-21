@@ -1,7 +1,7 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_URL || "https://social-backend-3cv6.onrender.com/api/v1/",
+  baseUrl: import.meta.env.VITE_BACKEND_URL,
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     return headers;

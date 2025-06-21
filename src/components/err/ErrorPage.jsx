@@ -8,14 +8,14 @@ const ErrorPage = () => {
     error?.statusText ||
     error?.data?.message ||  
     error?.message ||       
-    "Đã xảy ra lỗi!";
+    "!!!";
 
   return (
     <div className="text-center m-80">
       <h1 className="text-red-500 text-xl font-bold">
         Oops! Something went wrong.
       </h1>
-      <p className="mt-4 text-gray-700">{errorMessage}</p>
+      <p className="mt-4 text-white">{errorMessage}</p>
     </div>
   );
 };

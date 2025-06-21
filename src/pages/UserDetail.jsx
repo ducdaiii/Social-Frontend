@@ -6,6 +6,7 @@ import {
   useGetProjectsJoinQuery,
 } from "../api/postApi";
 import ProjectUserList from "../components/detail/ProjectUserList";
+import UserProfileForm from "../components/auth/UserProfileForm";
 
 const UserDetail = () => {
   const { id } = useParams();
@@ -18,6 +19,8 @@ const UserDetail = () => {
   return (
     <div className="max-w-4xl mx-auto mt-24 px-4 sm:px-6 lg:px-8 relative">
       <AuthorCard id={id} />
+
+      <UserProfileForm id={id} />
 
       {/* Tab Header */}
       <div className="mt-10 border-b border-gray-300 flex justify-between">

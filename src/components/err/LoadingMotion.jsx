@@ -17,7 +17,7 @@ const LoadingMotion = () => {
         }}
         className="w-16 h-16 bg-blue-500"
       />
-      <p className="mt-4 text-lg font-semibold">Đang tải dữ liệu...</p>
+      <p className="mt-4 text-lg font-semibold">Loading, please wait...</p>
     </div>
   );
 };

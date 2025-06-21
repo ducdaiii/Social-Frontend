@@ -26,9 +26,9 @@ const TestNet = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white text-center p-4">
-      <h1 className="text-4xl md:text-6xl font-bold">Sản phẩm đang trong quá trình phát triển!</h1>
+      <h1 className="text-4xl md:text-6xl font-bold">The product is in development!</h1>
       <p className="my-8 text-lg md:text-xl">
-        Chúng tôi sẽ sớm ra mắt bản máy chủ thử nghiệm, hãy chờ đón nhé!
+        We will soon launch the test server, stay tuned!
       </p>
       <div className="mt-2xl flex space-x-4 text-2xl md:text-4xl">
         <div className="p-4 bg-gray-900 rounded-lg">{timeElapsed.days}d</div>

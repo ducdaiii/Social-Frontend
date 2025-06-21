@@ -44,13 +44,13 @@ const PartModal = ({ isOpen, onClose, onSubmit, defaultData, projectId }) => {
         </button>
 
         <h2 className="text-xl font-bold mb-4 text-emerald-700">
-          {defaultData ? "Chỉnh sửa Part" : "Tạo Part mới"}
+          {defaultData ? "Edit Part" : "New Part Creation"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="text"
-            placeholder="Tiêu đề"
+            placeholder="Title"
             className="w-full border rounded px-3 py-2"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -58,7 +58,7 @@ const PartModal = ({ isOpen, onClose, onSubmit, defaultData, projectId }) => {
           />
 
           <textarea
-            placeholder="Mô tả"
+            placeholder="Description"
             className="w-full border rounded px-3 py-2"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -87,7 +87,7 @@ const PartModal = ({ isOpen, onClose, onSubmit, defaultData, projectId }) => {
               type="submit"
               className="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700 transition"
             >
-              {defaultData ? "Lưu thay đổi" : "Tạo Part"}
+              {defaultData ? "Save Changes" : "Create Part"}
             </button>
           </div>
         </form>
