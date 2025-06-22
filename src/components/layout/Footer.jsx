@@ -50,7 +50,7 @@ const Footer = () => {
 
         {/* Bản quyền */}
         <div className="mt-6 text-center text-sm border-t border-gray-700 pt-4">
-          <p>© {new Date().getFullYear()} Crypto.network.com. All Rights Reserved.</p>
+          <p>© 2024 SW.Tech.com. All Rights Reserved.</p>
         </div>
       </div>
     </footer>

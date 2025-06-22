@@ -1,8 +1,15 @@
 import { useState } from "react";
 import {
-  FaFacebookF, FaLinkedinIn, FaGithub, FaTwitter,
-  FaInstagram, FaYoutube, FaTiktok, FaPinterestP,
-  FaRedditAlien, FaStackOverflow
+  FaFacebookF,
+  FaLinkedinIn,
+  FaGithub,
+  FaTwitter,
+  FaInstagram,
+  FaYoutube,
+  FaTiktok,
+  FaPinterestP,
+  FaRedditAlien,
+  FaStackOverflow,
 } from "react-icons/fa";
 import { useGetUserByIdQuery, useUpdateUserMutation } from "../../api/userApi";
 import { useSendVerificationCodeMutation } from "../../api/mailApi";
@@ -13,7 +20,7 @@ const renderSocialIcon = (url) => {
   if (url.includes("facebook.com")) return <FaFacebookF />;
   if (url.includes("linkedin.com")) return <FaLinkedinIn />;
   if (url.includes("github.com")) return <FaGithub />;
-  if (url.includes("twitter.com")) return <FaTwitter />;
+  if (url.includes("x.com")) return <FaTwitter />;
   if (url.includes("instagram.com")) return <FaInstagram />;
   if (url.includes("youtube.com")) return <FaYoutube />;
   if (url.includes("tiktok.com")) return <FaTiktok />;
@@ -27,7 +34,7 @@ const getSocialType = (url) => {
   if (url.includes("facebook.com")) return "facebook";
   if (url.includes("linkedin.com")) return "linkedin";
   if (url.includes("github.com")) return "github";
-  if (url.includes("twitter.com")) return "twitter";
+  if (url.includes("x.com")) return "twitter";
   if (url.includes("instagram.com")) return "instagram";
   if (url.includes("youtube.com")) return "youtube";
   if (url.includes("tiktok.com")) return "tiktok";
@@ -67,6 +74,7 @@ const UserProfileForm = ({ id }) => {
       email: user.email,
       socialLinks: user.socialLinks || [],
       background: "",
+      bio: user.bio || "",
       avatar: "",
       verify: false,
     });
@@ -128,6 +136,7 @@ const UserProfileForm = ({ id }) => {
       const fd = new FormData();
       fd.append("username", formData.username);
       fd.append("email", formData.email);
+      fd.append("bio", formData.bio);
       if (formData.verify) fd.append("verify", true);
       formData.socialLinks.forEach((link, i) => {
         fd.append(`socialLinks[${i}]`, link);
@@ -183,7 +192,9 @@ const UserProfileForm = ({ id }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">Username</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
+          Username
+        </label>
         {editing ? (
           <input
             type="text"
@@ -196,8 +207,31 @@ const UserProfileForm = ({ id }) => {
         )}
       </div>
 
+      {/** 🔥 BIO */}
+      {(user.bio || editing) && (
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Bio
+          </label>
+          {editing ? (
+            <textarea
+              value={formData.bio}
+              onChange={(e) => handleChange("bio", e.target.value)}
+              className="w-full border rounded-lg px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows="3"
+            />
+          ) : (
+            <p className="text-sm text-gray-900">
+              {user.bio || "No bio provided"}
+            </p>
+          )}
+        </div>
+      )}
+
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
+          Email
+        </label>
         {editing && !user.verify ? (
           <div className="flex space-x-2">
             <input
@@ -222,11 +256,15 @@ const UserProfileForm = ({ id }) => {
       {editing && (
         <>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Background</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Background
+            </label>
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => handleFileChange("background", e.target.files[0])}
+              onChange={(e) =>
+                handleFileChange("background", e.target.files[0])
+              }
               className="w-full border rounded-lg px-4 py-2 text-sm shadow-sm"
             />
             {backgroundPreview && (
@@ -239,7 +277,9 @@ const UserProfileForm = ({ id }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Avatar</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Avatar
+            </label>
             <input
               type="file"
               accept="image/*"
@@ -258,25 +298,31 @@ const UserProfileForm = ({ id }) => {
       )}
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">Social Links</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
+          Social Links
+        </label>
         <div className="flex flex-wrap gap-3">
-          {(editing ? formData.socialLinks : user.socialLinks || []).map((link, idx) => (
-            <div key={idx} className="group">
-              <a
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-600 text-xl"
-              >
-                {renderSocialIcon(link) || <span className="text-xs text-gray-400">Link</span>}
-              </a>
-              {editing && (
-                <span className="text-xs text-gray-500 block max-w-[200px] truncate">
-                  {link}
-                </span>
-              )}
-            </div>
-          ))}
+          {(editing ? formData.socialLinks : user.socialLinks || []).map(
+            (link, idx) => (
+              <div key={idx} className="group">
+                <a
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 text-xl"
+                >
+                  {renderSocialIcon(link) || (
+                    <span className="text-xs text-gray-400">Link</span>
+                  )}
+                </a>
+                {editing && (
+                  <span className="text-xs text-gray-500 block max-w-[200px] truncate">
+                    {link}
+                  </span>
+                )}
+              </div>
+            )
+          )}
         </div>
         {editing && (
           <div className="mt-2 flex space-x-2">
