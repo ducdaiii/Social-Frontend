@@ -59,6 +59,37 @@ export const postApi = createApi({
         method: "DELETE",
       }),
     }),
+
+    giveStar: builder.mutation({
+      query: ({ id, userId }) => ({
+        url: `projects/${id}/star`,
+        method: "POST",
+        body: { userId },
+      }),
+    }),
+
+    obscureProject: builder.mutation({
+      query: ({ id, userId }) => ({
+        url: `projects/${id}/obscure`,
+        method: "POST",
+        body: { userId },
+      }),
+    }),
+
+    rankProject: builder.query({
+      query: () => "projects/top-star-obscure",
+      baseQuery: publicBaseQuery,
+    }),
+
+    topRoles: builder.query({
+      query: () => "projects/top-roles",
+      baseQuery: publicBaseQuery,
+    }),
+
+    topTags: builder.query({
+      query: () => "projects/top-tags",
+      baseQuery: publicBaseQuery,
+    }),
   }),
 });
 
@@ -70,4 +101,9 @@ export const {
   useGetProjectsJoinQuery,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
+  useGiveStarMutation,
+  useObscureProjectMutation,
+  useRankProjectQuery,
+  useTopRolesQuery,
+  useTopTagsQuery
 } = postApi;

@@ -2,6 +2,7 @@ import React, { useState, useMemo, use } from "react";
 import {
   useCreateProjectMutation,
   useDeleteProjectMutation,
+  useGetProjectByIdQuery,
   useGetProjectsQuery,
   useUpdateProjectMutation,
 } from "../api/postApi";
@@ -143,7 +144,7 @@ const Home = () => {
     (currentPage - 1) * postsPerPage,
     currentPage * postsPerPage
   );
-
+  const [needRefetch, setNeedRefetch] = useState(false);
 
   const handleRequest = async ({ letter, file, role }) => {
     try {
@@ -159,6 +160,7 @@ const Home = () => {
         note: letter,
       });
       setModalOpen(false);
+      refetch();
     } catch (err) {
       console.error("Error when send request:", err);
     }
@@ -237,7 +239,7 @@ const Home = () => {
           <div className="relative">
             <div className="sticky top-[70px]">
               <PostDetailView
-                post={selectedPost}
+                postID={selectedPost._id}
                 onClose={() => setSelectedPost(null)}
                 openRequestModal={() => {
                   if (!user) {

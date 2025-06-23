@@ -11,10 +11,14 @@ import {
   FaRedditAlien,
   FaStackOverflow,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
 import { useGetUserByIdQuery, useUpdateUserMutation } from "../../api/userApi";
 import { useSendVerificationCodeMutation } from "../../api/mailApi";
-import { useSelector } from "react-redux";
 import OTPModal from "./OTPModal";
+import TextareaField from "./TextareaField";
+import InputField from "./InputField";
+import SelectField from "./SelectField";
+import InfoRow from "./InfoRow";
 
 const renderSocialIcon = (url) => {
   if (url.includes("facebook.com")) return <FaFacebookF />;
@@ -57,12 +61,17 @@ const UserProfileForm = ({ id }) => {
     socialLinks: [],
     background: "",
     avatar: "",
+    nickname: "",
+    phoneNumber: "",
+    gender: "",
+    birthDate: "",
+    location: "",
+    bio: "",
     verify: false,
   });
   const [newLink, setNewLink] = useState("");
   const [backgroundPreview, setBackgroundPreview] = useState("");
   const [avatarPreview, setAvatarPreview] = useState("");
-
   const [showOTP, setShowOTP] = useState(false);
   const [generatedCode, setGeneratedCode] = useState("");
 
@@ -70,16 +79,21 @@ const UserProfileForm = ({ id }) => {
 
   const handleStartEdit = () => {
     setFormData({
-      username: user.username,
-      email: user.email,
+      username: user.username || "",
+      email: user.email || "",
       socialLinks: user.socialLinks || [],
       background: "",
-      bio: user.bio || "",
       avatar: "",
-      verify: false,
+      nickname: user.nickname || "",
+      phoneNumber: user.phoneNumber || "",
+      gender: user.gender || "",
+      birthDate: user.birthDate ? user.birthDate.slice(0, 10) : "",
+      location: user.location || "",
+      bio: user.bio || "",
+      verify: user.verify || false,
     });
-    setBackgroundPreview(user.background);
-    setAvatarPreview(user.avatar);
+    setBackgroundPreview(user.background || "");
+    setAvatarPreview(user.avatar || "");
     setEditing(true);
   };
 
@@ -88,6 +102,17 @@ const UserProfileForm = ({ id }) => {
     setNewLink("");
     setBackgroundPreview("");
     setAvatarPreview("");
+  };
+
+  const handleChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+  };
+
+  const handleFileChange = (field, file) => {
+    setFormData({ ...formData, [field]: file });
+    const url = URL.createObjectURL(file);
+    if (field === "background") setBackgroundPreview(url);
+    if (field === "avatar") setAvatarPreview(url);
   };
 
   const handleAddLink = () => {
@@ -108,17 +133,6 @@ const UserProfileForm = ({ id }) => {
     }
   };
 
-  const handleFileChange = (field, file) => {
-    setFormData({ ...formData, [field]: file });
-    const url = URL.createObjectURL(file);
-    if (field === "background") setBackgroundPreview(url);
-    if (field === "avatar") setAvatarPreview(url);
-  };
-
-  const handleChange = (field, value) => {
-    setFormData({ ...formData, [field]: value });
-  };
-
   const handleSendVerification = async () => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedCode(code);
@@ -137,6 +151,11 @@ const UserProfileForm = ({ id }) => {
       fd.append("username", formData.username);
       fd.append("email", formData.email);
       fd.append("bio", formData.bio);
+      fd.append("nickname", formData.nickname);
+      fd.append("phoneNumber", formData.phoneNumber);
+      fd.append("gender", formData.gender);
+      fd.append("birthDate", formData.birthDate);
+      fd.append("location", formData.location);
       if (formData.verify) fd.append("verify", true);
       formData.socialLinks.forEach((link, i) => {
         fd.append(`socialLinks[${i}]`, link);
@@ -157,7 +176,7 @@ const UserProfileForm = ({ id }) => {
   if (isError || !user) return <p>Error loading user data</p>;
 
   return (
-    <form className="w-full bg-white rounded-2xl border-2 shadow-md p-6 space-y-5 mt-6 mx-auto">
+    <form className="w-full bg-white rounded-2xl border shadow p-6 mx-auto space-y-6 mt-6">
       <div className="flex justify-end">
         {canEdit && !editing && (
           <button
@@ -175,7 +194,9 @@ const UserProfileForm = ({ id }) => {
               onClick={handleSave}
               disabled={isUpdating}
               className={`px-4 py-1.5 text-sm rounded-full shadow transition ${
-                isUpdating ? "bg-green-300" : "bg-green-500 hover:bg-green-600"
+                isUpdating
+                  ? "bg-green-300"
+                  : "bg-green-500 hover:bg-green-600"
               } text-white`}
             >
               {isUpdating ? "Saving..." : "Save"}
@@ -191,70 +212,112 @@ const UserProfileForm = ({ id }) => {
         )}
       </div>
 
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">
-          Username
-        </label>
-        {editing ? (
-          <input
-            type="text"
+      {!editing ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+          <InfoRow label="Username" value={user.username} />
+          <InfoRow label="Nickname" value={user.nickname || "N/A"} />
+          <InfoRow label="Phone Number" value={user.phoneNumber || "N/A"} />
+          <InfoRow label="Gender" value={user.gender || "N/A"} capitalize />
+          <InfoRow
+            label="Birth Date"
+            value={
+              user.birthDate
+                ? new Date(user.birthDate).toLocaleDateString()
+                : "N/A"
+            }
+          />
+          <InfoRow label="Location" value={user.location || "N/A"} />
+          <div className="sm:col-span-2">
+            <InfoRow label="Bio" value={user.bio || "N/A"} />
+          </div>
+          <div className="sm:col-span-2">
+            <InfoRow label="Email" value={user.email} />
+          </div>
+          <div className="sm:col-span-2">
+            <span className="text-gray-500 text-sm">Social Links</span>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {user.socialLinks?.length > 0 ? (
+                user.socialLinks.map((link, idx) => (
+                  <a
+                    key={idx}
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 text-xl"
+                  >
+                    {renderSocialIcon(link)}
+                  </a>
+                ))
+              ) : (
+                <p className="text-gray-400 text-sm">No social links</p>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <InputField
+            label="Username"
             value={formData.username}
             onChange={(e) => handleChange("username", e.target.value)}
-            className="w-full border rounded-lg px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-        ) : (
-          <p className="text-sm text-gray-900">{user.username}</p>
-        )}
-      </div>
-
-      {/** 🔥 BIO */}
-      {(user.bio || editing) && (
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Bio
-          </label>
-          {editing ? (
-            <textarea
-              value={formData.bio}
-              onChange={(e) => handleChange("bio", e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows="3"
-            />
-          ) : (
-            <p className="text-sm text-gray-900">
-              {user.bio || "No bio provided"}
-            </p>
-          )}
-        </div>
-      )}
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">
-          Email
-        </label>
-        {editing && !user.verify ? (
-          <div className="flex space-x-2">
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-              className="flex-1 border rounded-lg px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="button"
-              onClick={handleSendVerification}
-              className="px-2 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Verification
-            </button>
+          <InputField
+            label="Nickname"
+            value={formData.nickname}
+            onChange={(e) => handleChange("nickname", e.target.value)}
+          />
+          <InputField
+            label="Phone Number"
+            value={formData.phoneNumber}
+            onChange={(e) => handleChange("phoneNumber", e.target.value)}
+          />
+          <SelectField
+            label="Gender"
+            value={formData.gender}
+            onChange={(e) => handleChange("gender", e.target.value)}
+            options={[
+              { label: "Select Gender", value: "" },
+              { label: "Male", value: "male" },
+              { label: "Female", value: "female" },
+              { label: "Other", value: "other" },
+            ]}
+          />
+          <InputField
+            label="Birth Date"
+            type="date"
+            value={formData.birthDate}
+            onChange={(e) => handleChange("birthDate", e.target.value)}
+          />
+          <InputField
+            label="Location"
+            value={formData.location}
+            onChange={(e) => handleChange("location", e.target.value)}
+          />
+          <TextareaField
+            label="Bio"
+            value={formData.bio}
+            onChange={(e) => handleChange("bio", e.target.value)}
+          />
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Email
+            </label>
+            <div className="flex space-x-2">
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+                className="flex-1 border rounded-lg px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={handleSendVerification}
+                className="px-2 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Verification
+              </button>
+            </div>
           </div>
-        ) : (
-          <p className="text-sm text-gray-900">{user.email}</p>
-        )}
-      </div>
-
-      {editing && (
-        <>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Background
@@ -275,7 +338,6 @@ const UserProfileForm = ({ id }) => {
               />
             )}
           </div>
-
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Avatar
@@ -294,55 +356,39 @@ const UserProfileForm = ({ id }) => {
               />
             )}
           </div>
-        </>
-      )}
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">
-          Social Links
-        </label>
-        <div className="flex flex-wrap gap-3">
-          {(editing ? formData.socialLinks : user.socialLinks || []).map(
-            (link, idx) => (
-              <div key={idx} className="group">
-                <a
-                  href={link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-600 text-xl"
-                >
-                  {renderSocialIcon(link) || (
-                    <span className="text-xs text-gray-400">Link</span>
-                  )}
-                </a>
-                {editing && (
-                  <span className="text-xs text-gray-500 block max-w-[200px] truncate">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Social Links
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {formData.socialLinks.map((link, idx) => (
+                <div key={idx} className="flex items-center space-x-1">
+                  {renderSocialIcon(link)}
+                  <span className="text-xs text-gray-500 truncate max-w-[150px]">
                     {link}
                   </span>
-                )}
-              </div>
-            )
-          )}
-        </div>
-        {editing && (
-          <div className="mt-2 flex space-x-2">
-            <input
-              value={newLink}
-              onChange={(e) => setNewLink(e.target.value)}
-              type="url"
-              placeholder="https://"
-              className="flex-1 border rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="button"
-              onClick={handleAddLink}
-              className="px-4 py-2 text-sm bg-blue-500 text-white rounded-full shadow hover:bg-blue-600 transition"
-            >
-              Add
-            </button>
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 flex space-x-2">
+              <input
+                value={newLink}
+                onChange={(e) => setNewLink(e.target.value)}
+                type="url"
+                placeholder="https://"
+                className="flex-1 border rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={handleAddLink}
+                className="px-4 py-2 text-sm bg-blue-500 text-white rounded-full shadow hover:bg-blue-600 transition"
+              >
+                Add
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {showOTP && (
         <OTPModal

@@ -44,6 +44,10 @@ export const userApi = createApi({
     getfollowList: builder.query({
       query: (id) => `users/${id}/following`,
     }),
+
+    getTopFollower: builder.query({
+      query: () => `users/top-followed`,
+    })
   }),
 });
 
@@ -55,4 +59,5 @@ export const {
   useFollowUserMutation,
   useUnfollowUserMutation,
   useGetfollowListQuery,
+  useGetTopFollowerQuery
 } = userApi;

@@ -9,6 +9,8 @@ import {
   FaTimesCircle,
   FaArchive,
   FaFileAlt,
+  FaStar,
+  FaDizzy,
 } from "react-icons/fa";
 import { BsLaptop, BsBuilding, BsPeople } from "react-icons/bs";
 import dayjs from "dayjs";
@@ -17,6 +19,12 @@ import timezone from "dayjs/plugin/timezone";
 import AuthorCard from "../auth/AuthorCard";
 import PartList from "../part/ListParts";
 import { useSelector } from "react-redux";
+import LoadingMotion from "../err/LoadingMotion";
+import {
+  useGetProjectByIdQuery,
+  useGiveStarMutation,
+  useObscureProjectMutation,
+} from "../../api/postApi";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -41,29 +49,80 @@ const workingModeIcons = {
   Hybrid: <BsPeople className="text-indigo-500" />,
 };
 
-const PostDetailView = ({ post, onClose, openRequestModal }) => {
-  if (!post) return null;
+const PostDetailView = ({
+  postID,
+  onClose,
+  openRequestModal
+}) => {
+  if (!postID) return null;
   const navigate = useNavigate();
   const scrollRef = useRef(null);
   const user = useSelector((state) => state.auth.userInfo);
   const [showTopShadow, setShowTopShadow] = useState(false);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
-  const updatedDate = dayjs(post.updatedAt).tz("Asia/Ho_Chi_Minh");
-  const now = dayjs().tz("Asia/Ho_Chi_Minh");
-  const daysAgo = now.diff(updatedDate, "day");
+  const [giveStar] = useGiveStarMutation();
+  const [obscure] = useObscureProjectMutation();
+  const { data: post, isLoading, error, refetch } = useGetProjectByIdQuery(postID);
+
+  const handleGiveStar = async () => {
+    try {
+      await giveStar({ id: post._id, userId: user._id }).unwrap();
+      refetch();
+    } catch (err) {
+      console.error("Star failed:", err);
+      alert("Failed to give a star.");
+    }
+  };
+
+  const handleObscureProject = async () => {
+    try {
+      await obscure({ id: post._id, userId: user._id }).unwrap();
+      refetch();
+    } catch (err) {
+      console.error("Obscure failed:", err);
+      alert("Failed to obscure project.");
+    }
+  };
 
   useEffect(() => {
     const el = scrollRef.current;
+    if (!el) return;
     const handleScroll = () => {
-      if (!el) return;
       const { scrollTop, scrollHeight, clientHeight } = el;
       setShowTopShadow(scrollTop > 0);
       setShowBottomShadow(scrollTop + clientHeight < scrollHeight);
     };
     handleScroll();
     el.addEventListener("scroll", handleScroll);
-    return () => el.removeEventListener("scroll", handleScroll);
+    return () => {
+      el.removeEventListener("scroll", handleScroll);
+    };
   }, []);
+
+  if (isLoading) {
+    return <LoadingMotion />;
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-500">
+        Error loading post.{" "}
+        <button onClick={refetch} className="underline">
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return <div className="p-6 text-center text-gray-500">No post found.</div>;
+  }
+
+  const updatedDate = post.updatedAt
+    ? dayjs(post.updatedAt).tz("Asia/Ho_Chi_Minh")
+    : null;
+  const now = dayjs().tz("Asia/Ho_Chi_Minh");
+  const daysAgo = updatedDate ? now.diff(updatedDate, "day") : 0;
 
   const cantRequest =
     !user ||
@@ -72,7 +131,13 @@ const PostDetailView = ({ post, onClose, openRequestModal }) => {
     post.status === "Cancelled" ||
     post.roles.length === 0 ||
     post.members.includes(user._id) ||
-    user.projectSend?.some((reqId) => post.joinRequests.includes(reqId));
+    user.projectSend?.some((req) =>
+      post.joinRequests?.some((jr) => {
+        const reqId = typeof req === "string" ? req : req._id;
+        const jrId = typeof jr === "string" ? jr : jr._id;
+        return reqId === jrId;
+      })
+    );
 
   const renderMedia = () => {
     if (post.files?.length > 0) {
@@ -148,7 +213,7 @@ const PostDetailView = ({ post, onClose, openRequestModal }) => {
     <div className="w-[700px] h-[calc(100vh-75px)] bg-white rounded-2xl shadow-xl p-6 flex flex-col border border-gray-200">
       <div className="flex justify-between items-start mb-4">
         <h2 className="text-2xl font-semibold leading-snug text-gray-800 max-w-[80%]">
-          {post.title.toUpperCase()}
+          {post.title?.toUpperCase() || "UNTITLED"}
         </h2>
         <button
           onClick={onClose}
@@ -210,6 +275,7 @@ const PostDetailView = ({ post, onClose, openRequestModal }) => {
             </div>
           )}
         </div>
+
         {post.location?.length > 0 && (
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <strong>Locations:</strong>
@@ -223,48 +289,70 @@ const PostDetailView = ({ post, onClose, openRequestModal }) => {
 
         <div>
           <div className="text-gray-700 text-base leading-relaxed whitespace-pre-line">
-            {post.description}
+            {post.description || "No description provided."}
           </div>
         </div>
 
-        {post.parts?.length > 0 && <PartList partIds={post?.parts} />}
+        {post.parts?.length > 0 && <PartList partIds={post.parts} />}
 
         <div className="flex italic text-md mt-2 justify-between">
-          <AuthorCard id={post?.author} />
+          <AuthorCard id={post.author} />
         </div>
-        <span className="italic text-md text-black">
-          Update:{" "}
-          {daysAgo === 0
-            ? updatedDate.format("HH:mm") + " today"
-            : `${daysAgo} day${daysAgo > 1 ? "s" : ""} ago`}
-        </span>
+        {updatedDate && (
+          <span className="italic text-md text-black">
+            Update:{" "}
+            {daysAgo === 0
+              ? updatedDate.format("HH:mm") + " today"
+              : `${daysAgo} day${daysAgo > 1 ? "s" : ""} ago`}
+          </span>
+        )}
       </div>
 
-      <div className="flex justify-end gap-3 mt-2">
-        {cantRequest || (
+      <div className="flex justify-between gap-3 mt-2">
+        {/* Bên trái: ngôi sao + chóng mặt */}
+        <div className="flex gap-3">
           <button
-            onClick={openRequestModal}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-white hover:text-blue-700 text-white px-4 py-2 rounded-md shadow-sm transition"
+            onClick={handleGiveStar}
+            className="flex items-center gap-2 bg-yellow-400 hover:bg-white hover:text-yellow-600 text-white px-4 py-2 rounded-md shadow-sm transition"
           >
-            <MdOutlineSendTimeExtension className="text-lg" />
-            <span>Request</span>
+            <FaStar className="text-lg" /> {post.giveStar?.length || 0}
           </button>
-        )}
 
-        <button
-          onClick={() => {
-            if (post?._id) {
-              navigate(`/post/${post._id}`, { state: { post } });
-              onClose();
-            } else {
-              alert("Bài viết chưa được lưu, không có chi tiết để xem.");
-            }
-          }}
-          className="flex items-center gap-2 bg-green-600 hover:bg-white hover:text-green-700 text-white px-4 py-2 rounded-md shadow-sm transition"
-        >
-          <HiMagnifyingGlassCircle className="text-lg" />
-          <span>View details</span>
-        </button>
+          <button
+            onClick={handleObscureProject}
+            className="flex items-center gap-2 bg-red-500 hover:bg-white hover:text-pink-600 text-white px-4 py-2 rounded-md shadow-sm transition"
+          >
+            <FaDizzy className="text-lg" /> {post.obscurity?.length || 0}
+          </button>
+        </div>
+
+        {/* Bên phải: Request + View details */}
+        <div className="flex gap-3">
+          {cantRequest || (
+            <button
+              onClick={openRequestModal}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-white hover:text-blue-700 text-white px-4 py-2 rounded-md shadow-sm transition"
+            >
+              <MdOutlineSendTimeExtension className="text-lg" />
+              <span>Request</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => {
+              if (post._id) {
+                navigate(`/post/${post._id}`, { state: { post } });
+                onClose();
+              } else {
+                alert("Bài viết chưa được lưu, không có chi tiết để xem.");
+              }
+            }}
+            className="flex items-center gap-2 bg-green-600 hover:bg-white hover:text-green-700 text-white px-4 py-2 rounded-md shadow-sm transition"
+          >
+            <HiMagnifyingGlassCircle className="text-lg" />
+            <span>View details</span>
+          </button>
+        </div>
       </div>
     </div>
   );

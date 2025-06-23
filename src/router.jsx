@@ -10,6 +10,7 @@ import OAuth2Callback from "./pages/OAuth2Callback";
 import PostDetail from "./pages/PostDetail";
 import ErrorPage from "./components/err/ErrorPage";
 import UserDetail from "./pages/UserDetail";
+import NewsPage from "./pages/NewsPage";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
       { path: "/auth/github/callback", element: <OAuth2Callback /> },
       { path: "/post/:id", element: <PostDetail /> },
       { path: "/detail/:id", element: <UserDetail /> },
+      { path: "/news", element: <NewsPage /> },
     ],
   },
 ]);
