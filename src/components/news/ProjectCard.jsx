@@ -1,8 +1,10 @@
 import React from "react";
 import { FaStar, FaDizzy, FaUser, FaCrown, FaMedal } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const ProjectCard = ({ project, rank }) => {
   if (!project) return null;
+  const navigate = useNavigate();
 
   const tags = project.tags || [];
   const roles = project.roles || [];
@@ -40,19 +42,27 @@ const ProjectCard = ({ project, rank }) => {
     );
   }
 
-  return (
-    <div className="flex items-center">
-      {/* Rank nằm ngoài */}
-      {rankBadge}
+  const handleClick = () => {
+    navigate(`/post/${project._id}`);
+  };
 
-      {/* Card */}
-      <div className="w-full mr-5 bg-gray-800 border border-gray-700 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden">
+  return (
+    <div
+      className="flex items-center cursor-pointer group"
+      onClick={handleClick}
+    >
+      {rankBadge}
+      <div
+        className="w-full mr-5 bg-gray-800 border border-gray-700 rounded-2xl shadow-xl 
+                  overflow-hidden transform transition duration-300 ease-in-out
+                  group-hover:scale-105 group-hover:shadow-2xl group-hover:border-indigo-500"
+      >
         <div className="flex flex-col md:flex-row">
           {project.images?.length > 0 ? (
             <img
               src={project.images[0]}
               alt={project.title || "Project image"}
-              className="w-full md:w-48 h-48 object-cover"
+              className="w-full md:w-48 h-48 object-cover transition duration-300 group-hover:brightness-110"
             />
           ) : (
             <div className="w-full md:w-48 h-48 bg-gray-700 flex items-center justify-center text-gray-400">
@@ -93,7 +103,7 @@ const ProjectCard = ({ project, rank }) => {
                 <FaDizzy className="text-pink-400" /> {obscures.length}
               </div>
               <div className="flex items-center gap-1">
-                <FaUser className="text-blue-400" /> {members.length}
+                <FaUser className="text-blue-400" /> {members.length + 1}
               </div>
             </div>
           </div>
