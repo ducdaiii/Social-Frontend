@@ -209,6 +209,7 @@ const PostDetailView = ({
     return null;
   };
 
+
   return (
     <div className="w-[700px] h-[calc(100vh-75px)] bg-white rounded-2xl shadow-xl p-6 flex flex-col border border-gray-200">
       <div className="flex justify-between items-start mb-4">
@@ -293,7 +294,8 @@ const PostDetailView = ({
           </div>
         </div>
 
-        {post.parts?.length > 0 && <PartList partIds={post.parts} />}
+        {post.parts?.length > 0 && <PartList partIds={post.parts.map(part => part._id)} />}
+        
 
         <div className="flex italic text-md mt-2 justify-between">
           <AuthorCard id={post.author} />
