@@ -48,7 +48,7 @@ const Header = () => {
     { path: "/", icon: "fi fi-sr-home", label: "Home" },
     { path: "/users", icon: "fi fi-sr-users", label: "People" },
     { path: "/news", icon: "fi fi-sr-chart-simple", label: "News" },
-    { path: `/forum`, icon: "fi fi-sr-comment", label: "Chatting" },
+    { path: `/resource`, icon: "fi fi-sr-book-alt", label: "Chatting" },
   ];
 
   return (
@@ -90,11 +90,11 @@ const Header = () => {
               className="flex items-center gap-2 focus:outline-none"
             >
               <AuthLogo user={user} isLoading={isLoading} error={error} />
-              <FiMoreHorizontal className="w-6 h-6" />
+              {/* <FiMoreHorizontal className="w-6 h-6" /> */}
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-35 w-44 rounded-md bg-gray-800 shadow-lg z-50 ring-1 ring-black ring-opacity-5">
+              <div className="absolute right-0 mt-40 w-44 rounded-md bg-gray-800 shadow-lg z-50 ring-1 ring-black ring-opacity-5">
                 <button
                   onClick={() => {
                     setDropdownOpen(false);

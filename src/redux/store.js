@@ -12,11 +12,13 @@ import { projectForumMessageApi } from "../api/projectForumMessageApi";
 import { projectContributionApi } from "../api/projectContributionsApi";
 import { partApi } from "../api/partApi";
 import { mailApi } from "../api/mailApi";
+import { resourcesApi } from "../api/resourcesApi";
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
     [authApi.reducerPath]: authApi.reducer,
+    [resourcesApi.reducerPath]: resourcesApi.reducer,
     [mailApi.reducerPath]: mailApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [postApi.reducerPath]: postApi.reducer,
@@ -32,6 +34,7 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       authApi.middleware,
+      resourcesApi.middleware,
       mailApi.middleware,
       userApi.middleware,
       postApi.middleware,

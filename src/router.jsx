@@ -11,6 +11,7 @@ import PostDetail from "./pages/PostDetail";
 import ErrorPage from "./components/err/ErrorPage";
 import UserDetail from "./pages/UserDetail";
 import NewsPage from "./pages/NewsPage";
+import ResourceList from "./pages/ResourceList";
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
       { path: "/post/:id", element: <PostDetail /> },
       { path: "/detail/:id", element: <UserDetail /> },
       { path: "/news", element: <NewsPage /> },
+      { path: "/resource", element: <ResourceList /> },
     ],
   },
 ]);
