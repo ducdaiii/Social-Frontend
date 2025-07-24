@@ -75,7 +75,7 @@ const ForumPage = ({ postId, userId }) => {
         {replyParentId && (
           <div className="text-sm text-gray-500 mb-1 px-1 flex items-center justify-between">
             <span>
-              Replying to message <strong>{replyParentId}</strong>
+              Replying to message <strong>{forums.content}</strong>
             </span>
             <button
               onClick={() => setReplyParentId(null)}

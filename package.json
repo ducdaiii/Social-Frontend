@@ -38,6 +38,7 @@
     "react-sticky-box": "^2.0.5",
     "recharts": "^2.15.1",
     "socket.io-client": "^4.8.1",
+    "swiper": "^11.2.10",
     "vite-plugin-svgr": "^4.3.0"
   },
   "devDependencies": {

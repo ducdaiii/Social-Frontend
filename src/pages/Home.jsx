@@ -20,6 +20,8 @@ import RequestModal from "../components/post/detail/RequestModal";
 import { useCreateJoinRequestMutation } from "../api/projectJoinRequestApi";
 import { useSendNotificationWithPdfMutation } from "../api/mailApi";
 import { useGetUserByIdQuery } from "../api/userApi";
+import Banner from "../components/layout/Banner";
+import About from "../components/layout/About";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -196,8 +198,10 @@ const Home = () => {
 
   return (
     <div className="min-h-screen relative overflow-visible">
+      <Banner/>
+
       {/* TopBar */}
-      <div className="relative left-1/2 transform -translate-x-1/2 w-full sm:max-w-300 px-4 mt-20">
+      <div className="relative left-1/2 transform -translate-x-1/2 w-full sm:max-w-300 px-4">
         <TopBar
           search={search}
           setSearch={setSearch}
@@ -330,6 +334,8 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+      <About />
 
       <PostModal
         isOpen={showModal}
